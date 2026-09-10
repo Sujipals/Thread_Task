@@ -3,7 +3,6 @@ using System.Threading;
 
 class Program
 {
-    // Two shared lock objects.
     private static readonly object lockA = new object();
     private static readonly object lockB = new object();
 
@@ -15,7 +14,6 @@ class Program
             {
                 Console.WriteLine("Thread 1 locked A");
 
-                // Give Thread 2 time to lock B.
                 Thread.Sleep(100);
 
                 Console.WriteLine("Thread 1 waiting for B");
@@ -29,18 +27,19 @@ class Program
 
         Thread thread2 = new Thread(() =>
         {
-            lock (lockB)
+            // IMPORTANT:
+            // Thread 2 also takes A before B.
+            lock (lockA)
             {
-                Console.WriteLine("Thread 2 locked B");
+                Console.WriteLine("Thread 2 locked A");
 
-                // Give Thread 1 time to lock A.
                 Thread.Sleep(100);
 
-                Console.WriteLine("Thread 2 waiting for A");
+                Console.WriteLine("Thread 2 waiting for B");
 
-                lock (lockA)
+                lock (lockB)
                 {
-                    Console.WriteLine("Thread 2 locked A");
+                    Console.WriteLine("Thread 2 locked B");
                 }
             }
         });
